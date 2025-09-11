@@ -204,6 +204,107 @@
         </div>
       </footer>
 
+
+      <script type="module">
+        const DATA_BASE = "./public/data";     
+        const CONTENT_BASE = "./content";      
+
+        const $ = sel => document.querySelector(sel);
+        const $$ = sel => Array.from(document.querySelectorAll(sel));
+        const escapeHTML = s => (s ?? "").replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));
+        const truncate = (s, n=160) => (s && s.length>n ? s.slice(0,n) + "…" : (s||""));
+        async function getJSON(name){ const r = await fetch(`${DATA_BASE}/${name}.json`, {cache:"no-store"}); return r.json(); }
+
+        async function renderStats(){
+          const stats = await getJSON("stats");
+          const map = {
+            members: stats.team_members ?? "—",
+            projects: stats.projects_total ?? "—",
+            distinctions: stats.distinctions ?? "—"
+          };
+          const ul = document.querySelector(".stats");
+          if(!ul) return;
+          ul.innerHTML = `
+            <li><span class="big">${map.members}</span><span>members</span></li>
+            <li><span class="big">${map.projects}</span><span>projects</span></li>
+            <li><span class="big">${map.distinctions}</span><span>distinctions</span></li>
+          `;
+        }
+
+        async function renderNews(){
+          const list = await getJSON("news");
+          const ul = document.querySelector("ul.news");
+          if(!ul) return;
+          const items = list.slice(0,3).map(n => `
+            <li class="news-item">
+              ${n.cover ? `<img class="news-thumb" src="${CONTENT_BASE}${n.cover}" alt="${escapeHTML(n.title)}">` : ""}
+              <div>
+                <strong>${escapeHTML(n.title)}</strong><br>
+                <small>${n.date ? new Date(n.date).toLocaleDateString() : ""}</small>
+                <p>${truncate(escapeHTML(n.description), 120)}</p>
+              </div>
+            </li>
+          `).join("");
+          ul.innerHTML = items || "<li>Brak aktualności — wkrótce coś wrzucimy.</li>";
+        }
+
+        async function renderProjects(){
+          const list = await getJSON("projects");
+          const ul = document.querySelector(".section.projects ul.cards");
+          if(!ul) return;
+          const items = list.slice(0, 9).map(p => `
+            <li class="card proj">
+              <div class="thumb">
+                ${p.cover ? `<img src="${CONTENT_BASE}${p.cover}" alt="${escapeHTML(p.title)}">` : ""}
+              </div>
+              <h3>${escapeHTML(p.title)}</h3>
+              <p>${truncate(escapeHTML(p.description), 150)}</p>
+            </li>
+          `).join("");
+          ul.innerHTML = items;
+        }
+
+        async function renderHighlighted(){
+          const list = await getJSON("projects");
+          const pick = list.find(p => (p.tags||[]).some(t => t.toLowerCase()==="highlight")) || list[0];
+          const art = document.querySelector(".section.highlight article.card.project");
+          if(!art || !pick) return;
+          art.querySelector(".thumb").innerHTML = pick.cover ? `<img src="${CONTENT_BASE}${pick.cover}" alt="${escapeHTML(pick.title)}">` : "";
+          art.querySelector(".project-body h3").textContent = pick.title;
+          art.querySelector(".project-body p").textContent = truncate(pick.description, 220);
+        }
+
+        async function renderTeam(){
+          const list = await getJSON("team");
+          const ul = document.querySelector(".section.team ul.cards");
+          if(!ul) return;
+          const items = list.slice(0, 8).map(t => `
+            <li class="card person">
+              <div class="avatar">${t.photo ? `<img src="${CONTENT_BASE}${t.photo}" alt="${escapeHTML(t.name)}">` : ""}</div>
+              <h3>${escapeHTML(t.name)}</h3>
+              <p><em>${escapeHTML(t.role)}</em></p>
+              ${t.links ? `<p><a class="chip" href="${t.links}" target="_blank" rel="noopener">Profile</a></p>` : ""}
+            </li>
+          `).join("");
+          ul.innerHTML = items;
+        }
+
+        (async function init(){
+          try{
+            await Promise.all([
+              renderStats(),
+              renderNews(),
+              renderProjects(),
+              renderHighlighted(),
+              renderTeam()
+            ]);
+          }catch(e){
+            console.error("Render error:", e);
+          }
+        })();
+      </script>
+
+
     </body>
 
 </html>

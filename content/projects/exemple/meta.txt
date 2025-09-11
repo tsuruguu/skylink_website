@@ -1,0 +1,7 @@
+title: exemple v1
+date: 2025-08-30
+tags: laser,optics
+status: active
+links:
+---
+Krótki opis projektu. Może być wielolinijkowy, nawet z prostym Markdown.

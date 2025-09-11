@@ -1,0 +1,6 @@
+name: Albert
+role: Lead, Systems
+email: skylink@agh.edu.pl
+links: https://linkedin.com/in/albert
+---
+Bio 1–3 zdania

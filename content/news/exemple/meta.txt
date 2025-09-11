@@ -1,0 +1,5 @@
+title: exemple
+date: 2025-09-05
+author: Skylink Team
+---
+Krótki opis projektu. Może być wielolinijkowy, nawet z prostym Markdown.

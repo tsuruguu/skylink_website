@@ -1,0 +1,8 @@
+{
+  "name": "skylink_website",
+  "type": "module",
+  "scripts": {
+    "build:data": "node scripts/generate-content.js"
+  },
+  "devDependencies": {}
+}
